@@ -1,1 +1,1 @@
-make && ./coucoujesuisunexecutable
+make && ./coucoujesuisunexecutable $@

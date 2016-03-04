@@ -1,0 +1,12 @@
+1. Quittez votre serveur (Ctrl+C) et relancez le. Que se passe t’il ?
+Il ne se relance pas.
+
+2. Ajouter un petit délai avant l’envoi du message de bienvenue (1 seconde). Puis, exécutez la
+commande suivante : nc -z 127.0.0.1 8080. Que se passe t’il ?
+C'a débloqué la fonction bloquante, accept().
+
+3. Exécutez la commande suivante : telnet ::1 8080. Que se passe t’il ? Pourquoi ?
+Message de bienvenu reçu de la part du serveur, car telnet nous dit ce qui se passe sur le port. 
+
+4. Lancez deux clients simultanément. Que se passe t’il ? Pourquoi ?
+Un message d'erreur est envoyé : L'addresse  est déjà utiliser, car adressage unique.
