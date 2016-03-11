@@ -5,12 +5,29 @@
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
+#include <wait.h>
 #include "socket.h"
 
+void traitement_signal(int sig) {
+  printf("Signal %d recu\n", sig);
+  wait(&sig);
+  if(WIFSIGNALED(sig)) {
+    printf("Tue par signal %d\n", WTERMSIG(sig));
+  }
+}
+
 void initialiser_signaux(void) {
-  if (signal(SIGPIPE , SIG_IGN) == SIG_ERR) {
+  if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) {
     perror("signal");
   }
+
+  struct sigaction sa;
+  sa.sa_handler = traitement_signal;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = SA_RESTART;
+  if (sigaction(SIGCHLD , &sa, NULL) == -1) {    
+    perror("sigaction(SIGCHLD)");    
+  }  
 }
 
 int creer_serveur(int port) {
@@ -25,7 +42,8 @@ int creer_serveur(int port) {
   if (setsockopt(socket_serveur, SOL_SOCKET, SO_REUSEADDR, &optval , sizeof(int)) == -1) {
     perror("Can not set SO_REUSEADDR option");
   }
-  
+
+  initialiser_signaux();
   
   struct sockaddr_in saddr;
   saddr.sin_family = AF_INET;
@@ -49,7 +67,6 @@ int creer_serveur(int port) {
       return -1;
     }
     int pid = fork();
-    initialiser_signaux();
     switch(pid) {
     case -1:
       perror("Bug forking");
