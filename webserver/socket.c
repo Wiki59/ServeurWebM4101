@@ -4,6 +4,7 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 #include "socket.h"
 
 int creer_serveur(int port) {
@@ -34,15 +35,25 @@ int creer_serveur(int port) {
 		return -1;
 	}
 
-	int socket_client = accept(socket_serveur, NULL, NULL);
-	if (socket_client == -1) {
-	  perror("Accept client socket bug\n");
-	  return -1;
+	while (1) {
+	  int socket_client = accept(socket_serveur, NULL, NULL);
+	  if (socket_client == -1) {
+	    perror("Accept client socket bug\n");
+	    return -1;
+	  }
+	  
+	  if (fork()) {
+	    printf("Serveur operationnel\n");
+	    const char *message_bienvenue = "Bonjour, bienvenue sur mon serveur\n";
+	    write(socket_client, message_bienvenue, strlen(message_bienvenue ));
+	    close(socket_serveur);
+	  }
 	}
-	printf("Serveur operationnel\n");
-	const char *message_bienvenue = "Bonjour, bienvenue sur mon serveur\n";
-	write(socket_client, message_bienvenue, strlen(message_bienvenue ));
-
-	close(socket_serveur);
 	return socket_serveur;
+}
+
+void initialiser_signaux(void) {
+  if (signal(SIGPIPE , SIG_IGN) == SIG_ERR) {
+    perror("signal");
+  }
 }
