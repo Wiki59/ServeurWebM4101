@@ -8,8 +8,8 @@ int main(int argc, char **argv) {
   int ret = 42;
   int fd = -1;
   if (argc == 1) {
-    printf("Lancement du serveur sur le port 8800\n");
-    fd = creer_serveur(8800);
+    printf("Lancement du serveur sur le port 8880\n");
+    fd = creer_serveur(8880);
     ret = fd;
   } else {
     printf("Coucou je suis la pour te tester, je m'appelle Glady\n");
@@ -18,17 +18,5 @@ int main(int argc, char **argv) {
       printf("Argument %d : %s\n", i, argv[i]);
     }
   }
-  printf("FD serveur = %d\n", ret);
-
-  char* msg = "Coucou\n";
-  char* msgretour = malloc(8);
-  
-  if (fd != -1) {
-    write(fd, msg, strlen(msg));
-    read(fd, msgretour, 9);
-  }
-
-  printf("Message retour %s", msgretour);
-  
   return ret;
 }
