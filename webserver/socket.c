@@ -39,6 +39,7 @@ int creer_serveur(int port) {
 	  int socket_client = accept(socket_serveur, NULL, NULL);
 	  if (socket_client == -1) {
 	    perror("Accept client socket bug\n");
+	    initialiser_signaux();
 	    return -1;
 	  }
 	  
