@@ -73,18 +73,18 @@ int creer_serveur(int port) {
       break;
 	// Fils
     case 0:
-      printf("Connexion effectuee\n");
-	fp = fdopen(socket_client, "+w"); 
-      const char *message_bienvenue = "Bonjour, bienvenue sur mon serveur\n";
-	fprintf(fp,"Bonjour humain, je suis Glady !s");
-      write(socket_client, message_bienvenue, strlen(message_bienvenue ));
-      close(socket_serveur);
+        printf("Connexion effectuee\n");
+        //const char *message_bienvenue = "Bonjour, bienvenue sur mon serveur\n";
+	fp = fdopen(socket_client, "w+"); 
+	fprintf(fp,"Bonjour humain, je suis Glady !\r\n");
 	fclose(fp);
+	close(socket_client);
+	close(socket_serveur);
       return 1;
       break;
-	// Pere
     default:
-
+	close(socket_client);
+	//close(socket_serveur);
       break;
     }
   }
