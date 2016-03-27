@@ -60,6 +60,7 @@ int creer_serveur(int port) {
   
   
   while (1) {
+	FILE* fp;
     int socket_client = accept(socket_serveur, NULL, NULL);
     if (socket_client == -1) {
       perror("Accept client socket bug\n");
@@ -73,9 +74,12 @@ int creer_serveur(int port) {
 	// Fils
     case 0:
       printf("Connexion effectuee\n");
+	fp = fdopen(socket_client, "+w"); 
       const char *message_bienvenue = "Bonjour, bienvenue sur mon serveur\n";
+	fprintf(fp,"Bonjour humain, je suis Glady !s");
       write(socket_client, message_bienvenue, strlen(message_bienvenue ));
       close(socket_serveur);
+	fclose(fp);
       return 1;
       break;
 	// Pere
