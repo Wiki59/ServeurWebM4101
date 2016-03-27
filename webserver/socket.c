@@ -31,6 +31,7 @@ void initialiser_signaux(void) {
 }
 
 int creer_serveur(int port) {
+  initialiser_signaux();
   
   int socket_serveur = socket(AF_INET, SOCK_STREAM, 0);
   if (socket_serveur == -1) {
@@ -42,8 +43,6 @@ int creer_serveur(int port) {
   if (setsockopt(socket_serveur, SOL_SOCKET, SO_REUSEADDR, &optval , sizeof(int)) == -1) {
     perror("Can not set SO_REUSEADDR option");
   }
-
-  initialiser_signaux();
   
   struct sockaddr_in saddr;
   saddr.sin_family = AF_INET;
@@ -71,6 +70,7 @@ int creer_serveur(int port) {
     case -1:
       perror("Bug forking");
       break;
+	// Fils
     case 0:
       printf("Connexion effectuee\n");
       const char *message_bienvenue = "Bonjour, bienvenue sur mon serveur\n";
@@ -78,8 +78,9 @@ int creer_serveur(int port) {
       close(socket_serveur);
       return 1;
       break;
+	// Pere
     default:
-      close(socket_client);
+
       break;
     }
   }
