@@ -76,7 +76,11 @@ int creer_serveur(int port) {
         printf("Connexion effectuee\n");
         //const char *message_bienvenue = "Bonjour, bienvenue sur mon serveur\n";
 	fp = fdopen(socket_client, "w+"); 
-	fprintf(fp,"Bonjour humain, je suis Glady !\r\n");
+	char buffer[80];
+	while(fgets(buffer, 80, fp) != NULL) {
+		printf("%s", buffer);
+	}
+	//fprintf(fp,"Bonjour humain, je suis Glady !\r\n");
 	fclose(fp);
 	close(socket_client);
 	close(socket_serveur);
@@ -84,7 +88,6 @@ int creer_serveur(int port) {
       break;
     default:
 	close(socket_client);
-	//close(socket_serveur);
       break;
     }
   }
