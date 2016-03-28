@@ -9,7 +9,10 @@
 #include "socket.h"
 
 void traitement_signal(int sig) {
-  printf("Signal %d recu\n", sig);
+	if (sig == 17) {
+		printf("Deconnexion\n");
+	}
+ // printf("Signal %d recu\n", sig);
   wait(&sig);
   if(WIFSIGNALED(sig)) {
     printf("Tue par signal %d\n", WTERMSIG(sig));
@@ -60,35 +63,60 @@ int creer_serveur(int port) {
   
   
   while (1) {
-	FILE* fp;
     int socket_client = accept(socket_serveur, NULL, NULL);
     if (socket_client == -1) {
       perror("Accept client socket bug\n");
       return -1;
     }
+	FILE* fp = fdopen(socket_client, "w+");
     int pid = fork();
-    switch(pid) {
-    case -1:
+    if (pid == -1) {
       perror("Bug forking");
-      break;
+    }
 	// Fils
-    case 0:
-        printf("Connexion effectuee\n");
-        //const char *message_bienvenue = "Bonjour, bienvenue sur mon serveur\n";
-	fp = fdopen(socket_client, "w+"); 
-	char buffer[80];
-	while(fgets(buffer, 80, fp) != NULL) {
-		printf("%s", buffer);
-	}
-	//fprintf(fp,"Bonjour humain, je suis Glady !\r\n");
-	fclose(fp);
-	close(socket_client);
-	close(socket_serveur);
-      return 1;
-      break;
-    default:
-	close(socket_client);
-      break;
+	if (pid == 0) {
+		char buffer[80];
+		char lignes[4][5][60];
+		char tmp[60];
+		int ligne = 0;
+		int mot = 0;	
+		int parser = 0;
+		char* erreur400 = "HTTP/1.1 400 Bad Request\r\nConnection: close\r\nContent-Length: 17\r\n\r\n400 Bad request\r\n";
+		char* requete200 = "HTTP/1.1 200 Ok\r\nContent-Length: 18\r\n\r\n200 Good request\r\n";
+		while(fgets(buffer, 80, fp) != NULL) {
+			int j = 0;
+			while (buffer[j] != '\0') {			
+				if (parser != -1) {
+					if (buffer[j] != '\n' || buffer[j] != '\r') {  
+						tmp[parser]	= buffer[j];
+					}
+				}			
+				j++;
+				if (buffer[j] == ' ' || buffer[j] == '\r') {
+					if (parser != -1) {
+						strcpy(lignes[ligne][mot], tmp);
+						memset(tmp, 0, sizeof(tmp));
+						mot++;
+					}
+					parser = (buffer[j] == '\r')?-2:-1;
+				} else {
+					parser++;
+				}
+				if (buffer[j] == '\n') {
+					if (ligne == 0 && (mot != 3 || strcmp(lignes[0][0], "GET") != 0)) {
+						fprintf(fp, erreur400);
+						return 0;
+					}
+					mot = 0;
+					ligne++;
+				}
+			}
+		}
+		fprintf(fp, requete200);
+	      return 1;
+	} else {
+		fclose(fp);
+		close(socket_client);
     }
   }
   return socket_serveur;
